@@ -35,12 +35,31 @@ var alarmManager = require('bencoding.alarmmanager').createAlarmManager();
 
 Now we have the module installed and avoid in our project we can start to use the components, see the feature guide below for details.
 
+## Constants
+* PRIORITY_HIGH
+* PRIORITY_LOW
+* PRIORITY_DEFAULT
+* PRIORITY_MIN
+* PRIORITY_MAX
+* NOTIFICATION_IMPORTANCE\_DEFAULT
+* NOTIFICATION_IMPORTANCE\_HIGHT
+* NOTIFICATION_IMPORTANCE\_LOW
+* NOTIFICATION_IMPORTANCE\_NONE
+* NOTIFICATION_IMPORTANCE\_MIN
+* NOTIFICATION_IMPORTANCE\_MAX
+* VISIBILITY_PRIVATE
+* VISIBILITY_PUBLIC
+* VISIBILITY_SECRET
+* BADGE_ICON\_SMALL
+
+
 ## Methods
 
 ### addAlarmNotification
 The addAlarmNotification allows you to schedule an Alarm that will then create an notification.
 
 You can create an AlarmNotification using the below properties:
+
 * <b>requestCode</b> (Required) (int) ID for the specific alarm being created. If the requestCode, it will update the saved alarm
 * <b>second</b> - (Required) (int) The second of the start time. 
 * <b>minute</b> - (Required) (int) The minute of the start time. 
@@ -57,6 +76,14 @@ You can create an AlarmNotification using the below properties:
 * <b>icon</b> - (Optional)The icon of the notification, this can be a system icon or resource included path, e.g. use `Ti.App.Android.R.drawable.appicon` to use your app icon at `platform/android/res/drawable-*/appicon.png`.
 * <b>repeat</b> - (Optional) (int) Used to schedule a repeating alarm. You can provide a millisecond value or use the words hourly, daily, weekly, monthly, yearly.
 * <b>channelName</b> - (Optional) (string) Name of notification channel name.
+* <b>number</b> - (Optional) By default, each notification increments a number displayed on the long- press menu, but you can override this number for your app. For example, this might be useful if you're using just one notification to represent multiple new messages but you want the count here to represent the number of total new messages.
+* <b>priority</b> - (Optional) (const) see above
+* <b>visibility</b> - (Optional) (const) see above
+* <b>importance</b> - (Optional) (const) see above
+* <b>badge</b> - (Optional) (boolean) 
+* <b>badegeIconType</b> - (Optional) (const) see above
+* <b>when</b>- (Optional) (long) Difference to now in sec. Default is 0
+* <b>showWhen<b>  - (Optional) (boolean)
 
 Please note if you omit the day, month, and year parameters the module will assume you mean to make the alarm effective from the current time If second is provided, alarm will be set to now plus the number of seconds provided; if minute is provided, alarm will be set for now plus the number of minutes provided.
 
@@ -89,6 +116,10 @@ You can create an AlarmService using the below properties:
 * <b>forceRestart</b> - (Optional) Force the service to restart if it is already running.
 * <b>repeat</b> - (Optional) Used to schedule a repeating alarm. You can provide a millisecond value or use the words hourly, daily, monthly, yearly.
 * <b>customData</b> - (Optional) (string) Used to pass custom text data to the service ("[]" if empty)
+* <b>channelName</b> - (Optional) (string)
+* <b>timeStamp</b> - (Optional) (string) provided by the system but can be overriden 
+* <b>priority</b> - (Options) (int) PRIORITY_HIGH | PRIORITY_LOW
+* <b>largeIcon</b> (Optional) (string, file)
 
 Please note if you omit the day, month, and year parameters the module will assume you mean to make the alarm effective from today and add the number of minutes provided.
 
