@@ -82,6 +82,7 @@ public class AlarmManagerProxy extends KrollProxy {
 		String channelName = "notification";
 		int priority = NotificationCompat.PRIORITY_DEFAULT;
 		int visibility = NotificationCompat.VISIBILITY_PRIVATE;
+		long timeoutAfter = -1;
 		int importance = NotificationManager.IMPORTANCE_DEFAULT;
 		long when = System.currentTimeMillis();
 		int number = -1;
@@ -93,6 +94,9 @@ public class AlarmManagerProxy extends KrollProxy {
 			priority = args.getInt("priority");
 		}
 		;
+		if (args.containsKeyAndNotNull("timeoutAfter")) {
+			timeoutAfter = args.getInt("timeoutAfter");
+		}
 		if (args.containsKeyAndNotNull("visibility")) {
 			visibility = args.getInt("visibility");
 		}
@@ -167,12 +171,14 @@ public class AlarmManagerProxy extends KrollProxy {
 		intent.putExtra("notification_channel_name", channelName);
 		intent.putExtra("notification_largeicon", largeIcon);
 		intent.putExtra("notification_when", when);
+		intent.putExtra("notification_timeoutAfter", timeoutAfter);
+		
 		intent.putExtra("notification_badge", badge);
 		intent.putExtra("notification_importance", importance);
 		intent.putExtra("notification_priority", priority);
 		intent.putExtra("notification_visibility", visibility);
 		intent.putExtra("notification_number", number);
-		intent.putExtra("notification_number", badgeIconType);
+		intent.putExtra("notification_badgeIconType", badgeIconType);
 	
 		// As of API 19 setRepeating == setInexactRepeating, see also:
 		// http://developer.android.com/reference/android/app/AlarmManager.html#setRepeating(int,

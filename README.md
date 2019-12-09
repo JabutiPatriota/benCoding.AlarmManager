@@ -84,6 +84,7 @@ You can create an AlarmNotification using the below properties:
 * <b>badegeIconType</b> - (Optional) (const) see above
 * <b>when</b> - (Optional) (long) Difference to now in sec. Default is 0
 * <b>showWhen</b>  - (Optional) (boolean)
+* <b>timeoutAfter</b> - (Optional) (long) Specifies a duration in seconds after which this notification should be canceled, if it is not already canceled.
 * <b>largeIcon</b> - (OPtional) Can be string, file, or id. For example:
 
 ### Variants of largeIcon:

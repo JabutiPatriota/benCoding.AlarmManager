@@ -24,19 +24,28 @@ import android.net.Uri;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 import android.support.v4.app.NotificationCompat.BigTextStyle;
 
 public class AlarmNotificationListener extends BroadcastReceiver {
-
+	public Context ctx = TiApplication.getInstance().getApplicationContext();
+	/* Entry point */
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		NotificationManager notificationManager = null;
-
 		utils.debugLog("In Alarm Notification Listener");
 		Bundle bundle = intent.getExtras();
+		Bitmap largeIcon = bundle.getParcelable("notification_largeImage");
+		long when = bundle.getInt("notification_when");
+		boolean badge = bundle.getBoolean("notification_badge");
+		int importance = bundle.getInt("notification_importance");
+		int priority = bundle.getInt("notification_priority");
+		int visibility = bundle.getInt("notification_visibility");
+		int number = bundle.getInt("notification_notification_number");
+		int badgeIconType = bundle.getInt("notification_badgeIconType");
 		if (bundle.get("notification_request_code") == null) {
 			utils.infoLog("notification_request_code is null assume cancelled");
 			return;
@@ -88,9 +97,9 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 				requestCode, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT | Notification.FLAG_AUTO_CANCEL);
 
 		String channelId = "default";
+		
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-			NotificationChannel channel = new NotificationChannel(channelId, channelName,
-					NotificationManager.IMPORTANCE_DEFAULT);
+			NotificationChannel channel = new NotificationChannel(channelId, channelName,importance);
 			if (playSound) {
 				// IMPORTANCE_DEFAULT has by default sound so we only have to set custom sound
 				if (hasCustomSound) {
@@ -110,15 +119,30 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 				channel.setVibrationPattern(new long[] { 0 });
 				channel.enableVibration(true);
 			}
+			channel.setShowBadge(badge);
+			channel.setShowBadge(badge);
+			
+
 			notificationManager.createNotificationChannel(channel);
 		}
 
-		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
-				TiApplication.getInstance().getApplicationContext(), channelId).setWhen(System.currentTimeMillis())
+		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(ctx, 
+				channelId).setWhen(when)
 						.setContentText(contentText).setContentTitle(contentTitle).setSmallIcon(icon)
 						.setAutoCancel(true).setTicker(contentTitle).setContentIntent(sender)
 						.setStyle(new NotificationCompat.BigTextStyle().bigText(contentText)).setOnlyAlertOnce(true)
-						.setAutoCancel(true);
+						.setAutoCancel(true).setBadgeIconType(badgeIconType).setPriority(priority).setVisibility(visibility);
+		
+		if (largeIcon != null) {
+			notificationBuilder.setLargeIcon(largeIcon);
+		}
+		if (number != -1) {
+			notificationBuilder.setNumber(number);
+		}
+		
+		
+
+		
 		utils.debugLog("setting notification flags");
 		notificationBuilder = createNotifyFlags(notificationBuilder, playSound, hasCustomSound, soundPath, doVibrate,
 				showLights);
@@ -145,6 +169,9 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 		int hour = bundle.getInt("notification_hour");
 		int minute = bundle.getInt("notification_minute");
 		int second = bundle.getInt("notification_second");
+
+		
+
 		Calendar cal = new GregorianCalendar(year, month, day);
 		cal.add(Calendar.HOUR_OF_DAY, hour);
 		cal.add(Calendar.MINUTE, minute);
@@ -174,6 +201,7 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 		bundle.putInt("notification_hour", cal.get(Calendar.HOUR_OF_DAY));
 		bundle.putInt("notification_minute", cal.get(Calendar.MINUTE));
 		bundle.putInt("notification_second", cal.get(Calendar.SECOND));
+		// TODO adding new parameters
 
 		// Update intent with this updated bundle.
 		intent.putExtras(bundle);
