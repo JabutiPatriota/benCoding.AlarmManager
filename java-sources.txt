@@ -4,7 +4,6 @@
 "/Users/fuerst/Documents/TitaniumStudioWorkspace/benCoding.AlarmManager/src/bencoding/alarmmanager/AlarmServiceListener.java"
 "/Users/fuerst/Documents/TitaniumStudioWorkspace/benCoding.AlarmManager/src/bencoding/alarmmanager/AlarmmanagerModule.java"
 "/Users/fuerst/Documents/TitaniumStudioWorkspace/benCoding.AlarmManager/src/bencoding/alarmmanager/utils.java"
-"/Users/fuerst/Documents/TitaniumStudioWorkspace/benCoding.AlarmManager/build/generated/java/bencoding/alarmmanager/AlarmmanagerBootstrap.java"
 "/Users/fuerst/Documents/TitaniumStudioWorkspace/benCoding.AlarmManager/build/generated/r/android/support/compat/R.java"
 "/Users/fuerst/Documents/TitaniumStudioWorkspace/benCoding.AlarmManager/build/generated/r/android/support/coreui/R.java"
 "/Users/fuerst/Documents/TitaniumStudioWorkspace/benCoding.AlarmManager/build/generated/r/android/support/coreutils/R.java"
