@@ -82,8 +82,20 @@ You can create an AlarmNotification using the below properties:
 * <b>importance</b> - (Optional) (const) see above
 * <b>badge</b> - (Optional) (boolean) 
 * <b>badegeIconType</b> - (Optional) (const) see above
-* <b>when</b>- (Optional) (long) Difference to now in sec. Default is 0
-* <b>showWhen<b>  - (Optional) (boolean)
+* <b>when</b> - (Optional) (long) Difference to now in sec. Default is 0
+* <b>showWhen</b>  - (Optional) (boolean)
+* <b>largeIcon</b> - (OPtional) Can be string, file, or id. For example:
+
+### Variants of largeIcon:
+
+```javascript
+largeIcon = '/images/myimage.png';
+largeIcon = Ti.File.createFile(Ti.File.getResourcesFolder,'xxx');
+largeIcon = 'https://…';
+largeIcon = Ti.App.Android.R.drawable.my_icon;
+
+
+```
 
 Please note if you omit the day, month, and year parameters the module will assume you mean to make the alarm effective from the current time If second is provided, alarm will be set to now plus the number of seconds provided; if minute is provided, alarm will be set for now plus the number of minutes provided.
 

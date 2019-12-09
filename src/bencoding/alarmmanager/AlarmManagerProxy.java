@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import bencoding.alarmmanager.AlarmmanagerModule;
 
@@ -79,12 +80,12 @@ public class AlarmManagerProxy extends KrollProxy {
 		String contentText = "";
 		String notificationSound = "";
 		String channelName = "notification";
-		int priority;
-		int visibility;
-		int importance;
+		int priority = NotificationCompat.PRIORITY_DEFAULT;
+		int visibility = NotificationCompat.VISIBILITY_PRIVATE;
+		int importance = NotificationManager.IMPORTANCE_DEFAULT;
 		long when = System.currentTimeMillis();
-		int number;
-		int badgeIconType;
+		int number = -1;
+		int badgeIconType =NotificationCompat.BADGE_ICON_NONE;
 		boolean showWhen = true;
 		boolean badge = true;
 		Bitmap largeIcon = readBitmapfromArgs(args);
@@ -163,11 +164,16 @@ public class AlarmManagerProxy extends KrollProxy {
 		intent.putExtra("notification_show_lights", showLights);
 		intent.putExtra("notification_requestcode", requestCode);
 		intent.putExtra("notification_root_classname", AlarmmanagerModule.rootActivityClassName);
-		intent.putExtra("notification_request_code", requestCode);
 		intent.putExtra("notification_channel_name", channelName);
 		intent.putExtra("notification_largeicon", largeIcon);
 		intent.putExtra("notification_when", when);
-		
+		intent.putExtra("notification_badge", badge);
+		intent.putExtra("notification_importance", importance);
+		intent.putExtra("notification_priority", priority);
+		intent.putExtra("notification_visibility", visibility);
+		intent.putExtra("notification_number", number);
+		intent.putExtra("notification_number", badgeIconType);
+	
 		// As of API 19 setRepeating == setInexactRepeating, see also:
 		// http://developer.android.com/reference/android/app/AlarmManager.html#setRepeating(int,
 		// long, long, android.app.PendingIntent)
@@ -509,7 +515,7 @@ public class AlarmManagerProxy extends KrollProxy {
 				if (isInteger(readPath)) {
 					Log.d(LCAT, "file is id of ressources");
 					Bitmap bm;
-					return BitmapFactory.decodeResource(TiApplication.getInstance().getResources(), (int)readPath);
+					return BitmapFactory.decodeResource(TiApplication.getInstance().getResources(), (int) readPath);
 				} else if (readPath instanceof TiFile) {
 					Log.d(LCAT, "file is TiFile");
 					inputFile = TiFileFactory.createTitaniumFile(((TiFile) readPath).getFile().getAbsolutePath(),
@@ -549,8 +555,7 @@ public class AlarmManagerProxy extends KrollProxy {
 		return null;
 	}
 	/*
-	 * bundle.putParcelable("BitmapImage",bitmapname); 
-	 * Bitmap bitmapimage =
+	 * bundle.putParcelable("BitmapImage",bitmapname); Bitmap bitmapimage =
 	 * getIntent().getExtras().getParcelable("BitmapImage");
 	 */
 }
