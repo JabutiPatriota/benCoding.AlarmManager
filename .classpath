@@ -9,12 +9,11 @@
 	<classpathentry kind="lib" path="/Users/fuerst/Library/Application Support/Titanium/mobilesdk/osx/8.3.0.GA/android/kroll-common.jar"/>
 	<classpathentry kind="lib" path="/Users/fuerst/Library/Application Support/Titanium/mobilesdk/osx/8.3.0.GA/android/kroll-apt.jar"/>
 	<classpathentry kind="lib" path="/Users/fuerst/Library/Application Support/Titanium/mobilesdk/osx/8.3.0.GA/android/modules/titanium-filesystem.jar"/>
-       
 	<classpathentry kind="src" path=".apt_generated">
 		<attributes>
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Users/fuerst/Documents/TitaniumStudioWorkspace/benCoding.AlarmManager/lib/support_compatv4.jar"/>
+	<classpathentry kind="lib" path="/Users/fuerst/Documents/TitaniumStudioWorkspace/benCoding.AlarmManager/lib4ide/support_compatv4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

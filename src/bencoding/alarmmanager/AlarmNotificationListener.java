@@ -9,9 +9,11 @@ package bencoding.alarmmanager;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import android.app.AlarmManager;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
 import android.R;
@@ -25,39 +27,44 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
+import android.support.v4.content.FileProvider;
 import android.support.v4.app.NotificationCompat.BigTextStyle;
 
 public class AlarmNotificationListener extends BroadcastReceiver {
 	public Context ctx = TiApplication.getInstance().getApplicationContext();
+
 	/* Entry point */
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		NotificationManager notificationManager = null;
-		utils.debugLog("In Alarm Notification Listener");
+		utils.debugLog(">>>>>>> In Alarm Notification Listener >>>>>>>>>>>");
 		Bundle bundle = intent.getExtras();
-		Bitmap largeIcon = bundle.getParcelable("notification_largeImage");
-		long when = bundle.getInt("notification_when");
+		for (String key : bundle.keySet()) {
+			utils.infoLog(key + "=" + bundle.get(key));
+		}
+		if (!bundle.containsKey("notification_requestcode") || bundle.get("notification_requestcode") == null) {
+			utils.infoLog("notification_request_code is null or undefined => assume cancelled");
+			return;
+		}
+		Bitmap largeIcon = bundle.getParcelable("notification_largeIcon");
+		utils.infoLog("largeIcon=" + largeIcon);
+		int requestCode = bundle.getInt("notification_requestcode", AlarmmanagerModule.DEFAULT_REQUEST_CODE);
 		boolean badge = bundle.getBoolean("notification_badge");
 		int importance = bundle.getInt("notification_importance");
 		int priority = bundle.getInt("notification_priority");
+		long when = bundle.getLong("notification_when");
+		long timeoutAfter = bundle.getLong("notification_timeoutAfter");
 		int visibility = bundle.getInt("notification_visibility");
 		int number = bundle.getInt("notification_notification_number");
 		int badgeIconType = bundle.getInt("notification_badgeIconType");
-		if (bundle.get("notification_request_code") == null) {
-			utils.infoLog("notification_request_code is null assume cancelled");
-			return;
-		}
-		int requestCode = bundle.getInt("notification_request_code", AlarmmanagerModule.DEFAULT_REQUEST_CODE);
-		utils.debugLog("requestCode is " + requestCode);
+		utils.debugLog("onReceive::requestCode is " + requestCode);
 		String contentTitle = bundle.getString("notification_title");
-		utils.debugLog("contentTitle is " + contentTitle);
 		String contentText = bundle.getString("notification_msg");
-		utils.debugLog("contentText is " + contentText);
 		String className = bundle.getString("notification_root_classname");
-		utils.debugLog("className is " + className);
 		boolean hasIcon = bundle.getBoolean("notification_has_icon", true);
 		int icon = R.drawable.stat_notify_more;
 		if (hasIcon) {
@@ -75,31 +82,22 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 		utils.debugLog("On notification vibrate? " + new Boolean(doVibrate).toString());
 		boolean showLights = bundle.getBoolean("notification_show_lights", false);
 		utils.debugLog("On notification show lights? " + new Boolean(showLights).toString());
-		String channelName = bundle.getString("notification_channel_name");
-		if (utils.isEmptyString(channelName)) {
-			channelName = "notification";
-		}
+		String channelName = bundle.getString("notification_channel_name", "notification");
 
 		notificationManager = (NotificationManager) TiApplication.getInstance()
 				.getSystemService(TiApplication.NOTIFICATION_SERVICE);
-		utils.debugLog("NotificationManager created");
-
 		Intent notifyIntent = createIntent(className);
 		notifyIntent.putExtra("requestCode", requestCode);
-
 		String customData = bundle.getString("customData");
-
 		if (!utils.isEmptyString(customData)) {
 			notifyIntent.putExtra("customData", customData);
 		}
-
 		PendingIntent sender = PendingIntent.getActivity(TiApplication.getInstance().getApplicationContext(),
 				requestCode, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT | Notification.FLAG_AUTO_CANCEL);
 
 		String channelId = "default";
-		
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-			NotificationChannel channel = new NotificationChannel(channelId, channelName,importance);
+			NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
 			if (playSound) {
 				// IMPORTANCE_DEFAULT has by default sound so we only have to set custom sound
 				if (hasCustomSound) {
@@ -120,33 +118,38 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 				channel.enableVibration(true);
 			}
 			channel.setShowBadge(badge);
-			channel.setShowBadge(badge);
-			
-
+			channel.setLockscreenVisibility(visibility);
 			notificationManager.createNotificationChannel(channel);
-		}
+		} // end of OREO work
 
-		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(ctx, 
-				channelId).setWhen(when)
-						.setContentText(contentText).setContentTitle(contentTitle).setSmallIcon(icon)
-						.setAutoCancel(true).setTicker(contentTitle).setContentIntent(sender)
-						.setStyle(new NotificationCompat.BigTextStyle().bigText(contentText)).setOnlyAlertOnce(true)
-						.setAutoCancel(true).setBadgeIconType(badgeIconType).setPriority(priority).setVisibility(visibility);
-		
+		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(ctx, channelId);
+		notificationBuilder.setWhen(when) //
+				.setContentText(contentText) //
+				.setContentTitle(contentTitle) //
+				.setSmallIcon(icon) //
+				.setAutoCancel(true).setTicker(contentTitle)//
+				.setContentIntent(sender) //
+				.setStyle(new NotificationCompat.BigTextStyle().bigText(contentText))//
+				.setOnlyAlertOnce(true).setAutoCancel(true)//
+				.setBadgeIconType(badgeIconType)//
+				.setPriority(priority)//
+				.setVisibility(visibility);
 		if (largeIcon != null) {
 			notificationBuilder.setLargeIcon(largeIcon);
+		} else {
+			utils.debugLog("largeIcon was null ");
 		}
+
 		if (number != -1) {
 			notificationBuilder.setNumber(number);
 		}
-		
-		
-
-		
-		utils.debugLog("setting notification flags");
+		if (timeoutAfter != -1) {
+			notificationBuilder.setTimeoutAfter(timeoutAfter);
+		}
+		utils.debugLog("setting notification flags in package");
 		notificationBuilder = createNotifyFlags(notificationBuilder, playSound, hasCustomSound, soundPath, doVibrate,
 				showLights);
-		utils.debugLog("Notifying using requestCode =" + requestCode);
+
 		notificationManager.notify(requestCode, notificationBuilder.build());
 		utils.infoLog("You should now see a notification");
 
@@ -157,11 +160,9 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 	}
 
 	private void createRepeatNotification(Bundle bundle) {
-
 		Intent intent = new Intent(TiApplication.getInstance().getApplicationContext(),
 				AlarmNotificationListener.class);
 		// Use the same extras as the original notification
-
 		// Update date and time by repeat interval (in milliseconds)
 		int day = bundle.getInt("notification_day");
 		int month = bundle.getInt("notification_month");
@@ -169,8 +170,6 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 		int hour = bundle.getInt("notification_hour");
 		int minute = bundle.getInt("notification_minute");
 		int second = bundle.getInt("notification_second");
-
-		
 
 		Calendar cal = new GregorianCalendar(year, month, day);
 		cal.add(Calendar.HOUR_OF_DAY, hour);
@@ -201,7 +200,6 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 		bundle.putInt("notification_hour", cal.get(Calendar.HOUR_OF_DAY));
 		bundle.putInt("notification_minute", cal.get(Calendar.MINUTE));
 		bundle.putInt("notification_second", cal.get(Calendar.SECOND));
-		// TODO adding new parameters
 
 		// Update intent with this updated bundle.
 		intent.putExtras(bundle);
@@ -226,7 +224,6 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 
 	private NotificationCompat.Builder createNotifyFlags(NotificationCompat.Builder notification, boolean playSound,
 			boolean hasCustomSound, String soundPath, boolean doVibrate, boolean showLights) {
-		// Set the notifications flags
 		if (playSound && !hasCustomSound && doVibrate && showLights) {
 			notification.setDefaults(Notification.DEFAULT_ALL);
 		} else {
@@ -251,31 +248,21 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 			}
 			notification.setDefaults(defaults);
 		}
-
-		// Set alarm flags
 		return notification;
 	}
 
 	private Intent createIntent(String className) {
 		try {
-
 			if (utils.isEmptyString(className)) {
-				// If no activity is provided, use the App Start Activity
 				utils.infoLog("[AlarmManager] Using application Start Activity");
-
 				Intent iStartActivity = TiApplication.getInstance().getApplicationContext().getPackageManager()
 						.getLaunchIntentForPackage(
 								TiApplication.getInstance().getApplicationContext().getPackageName());
-
-				// Add the flags needed to restart
 				iStartActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				iStartActivity.addCategory(Intent.CATEGORY_LAUNCHER);
 				iStartActivity.setAction(Intent.ACTION_MAIN);
-
 				return iStartActivity;
-
 			} else {
-
 				utils.infoLog("[AlarmManager] Trying to get a class for name '" + className + "'");
 				@SuppressWarnings("rawtypes")
 				Class intentClass = Class.forName(className);
@@ -284,13 +271,25 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 				intentFromClass.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				intentFromClass.addCategory(Intent.CATEGORY_LAUNCHER);
 				intentFromClass.setAction(Intent.ACTION_MAIN);
-
 				return intentFromClass;
 			}
-
 		} catch (ClassNotFoundException e) {
 			utils.errorLog(e);
 			return null;
+		}
+	}
+
+	private class Filewalker {
+		public void walk(File root) {
+			File[] list = root.listFiles();
+			for (File f : list) {
+				if (f.isDirectory()) {
+					utils.debugLog("Dir: " + f.getAbsoluteFile());
+					walk(f);
+				} else {
+					utils.debugLog("File: " + f.getAbsoluteFile());
+				}
+			}
 		}
 	}
 }

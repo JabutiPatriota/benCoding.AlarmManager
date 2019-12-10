@@ -8,31 +8,30 @@ package bencoding.alarmmanager;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.support.v4.app.NotificationCompat;
 
-
-
-@Kroll.module(name="Alarmmanager", id="bencoding.alarmmanager")
-public class AlarmmanagerModule extends KrollModule
-{
+@Kroll.module(name = "Alarmmanager", id = "bencoding.alarmmanager")
+public class AlarmmanagerModule extends KrollModule {
 	public static final int DEFAULT_REQUEST_CODE = 192837;
 	public static final String MODULE_FULL_NAME = "bencoding.AlarmManager";
 	public static String rootActivityClassName = "";
-	 @Kroll.constant
-     public static final int NOTIFICATION_IMPORTANCE_DEFAULT = NotificationManager.IMPORTANCE_DEFAULT;
-     @Kroll.constant
-     public static final int NOTIFICATION_IMPORTANCE_HIGHT = NotificationManager.IMPORTANCE_HIGH;
-     @Kroll.constant
-     public static final int NOTIFICATION_IMPORTANCE_LOW = NotificationManager.IMPORTANCE_LOW;
-     @Kroll.constant
-     public static final int NOTIFICATION_IMPORTANCE_NONE = NotificationManager.IMPORTANCE_NONE;
-     @Kroll.constant
-     public static final int NOTIFICATION_IMPORTANCE_MIN = NotificationManager.IMPORTANCE_MIN;
-     @Kroll.constant
-     public static final int NOTIFICATION_IMPORTANCE_MAX = NotificationManager.IMPORTANCE_MAX;
+	
+	@Kroll.constant
+	public static final int NOTIFICATION_IMPORTANCE_DEFAULT = NotificationManager.IMPORTANCE_DEFAULT;
+	@Kroll.constant
+	public static final int NOTIFICATION_IMPORTANCE_HIGHT = NotificationManager.IMPORTANCE_HIGH;
+	@Kroll.constant
+	public static final int NOTIFICATION_IMPORTANCE_LOW = NotificationManager.IMPORTANCE_LOW;
+	@Kroll.constant
+	public static final int NOTIFICATION_IMPORTANCE_NONE = NotificationManager.IMPORTANCE_NONE;
+	@Kroll.constant
+	public static final int NOTIFICATION_IMPORTANCE_MIN = NotificationManager.IMPORTANCE_MIN;
+	@Kroll.constant
+	public static final int NOTIFICATION_IMPORTANCE_MAX = NotificationManager.IMPORTANCE_MAX;
 	@Kroll.constant
 	public static final int PRIORITY_HIGH = NotificationCompat.PRIORITY_HIGH;
 	@Kroll.constant
@@ -51,30 +50,30 @@ public class AlarmmanagerModule extends KrollModule
 	public static final int VISIBILITY_SECRET = NotificationCompat.VISIBILITY_SECRET;
 	@Kroll.constant
 	public static final int BADGE_ICON_SMALL = NotificationCompat.BADGE_ICON_SMALL;
-	
-	public AlarmmanagerModule()
-	{
+	@Kroll.constant
+	public static final int BADGE_ICON_NONE = NotificationCompat.BADGE_ICON_NONE;
+	@Kroll.constant
+	public static final int BADGE_ICON_LARGE = NotificationCompat.BADGE_ICON_LARGE;
+
+	public AlarmmanagerModule() {
 		super();
 	}
+
 	@Kroll.method
-	public void disableLogging()
-	{
+	public void disableLogging() {
 		utils.setDebug(false);
 	}
+
 	@Kroll.method
-	public void enableLogging()
-	{
+	public void enableLogging() {
 		utils.setDebug(true);
 	}
-    
-    @Override
-	public void onStart(Activity activity) 
-	{
-		// This method is called when the module is loaded and the root context is started
-		rootActivityClassName = TiApplication.getInstance().getApplicationContext().getPackageName() + "." + TiApplication.getAppRootOrCurrentActivity().getClass().getSimpleName();
-        utils.debugLog("onStart rootActivityClassName = " + rootActivityClassName);
 		
+	@Override
+	public void onStart(Activity activity) {
+		rootActivityClassName = TiApplication.getInstance().getApplicationContext().getPackageName() + "."
+				+ TiApplication.getAppRootOrCurrentActivity().getClass().getSimpleName();
+		Log.d("bencoding.Alarmmanager","==================\nonStart rootActivityClassName = " + rootActivityClassName);
 		super.onStart(activity);
 	}
 }
-
