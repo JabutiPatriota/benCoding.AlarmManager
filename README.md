@@ -80,12 +80,33 @@ You can create an AlarmNotification using the below properties:
 * <b>priority</b> - (Optional) (const) see above
 * <b>visibility</b> - (Optional) (const) see above
 * <b>importance</b> - (Optional) (const) see above
-* <b>badge</b> - (Optional) (boolean) 
-* <b>badegeIconType</b> - (Optional) (const) see above
+* <b>badge</b> - (Optional) (boolean) Sets whether notifications posted to this channel can appear as application icon badges in a Launcher. 
+* <b>badegeIconType</b> - (Optional) (const) Sets which icon to display as a badge for this notification. 
 * <b>when</b> - (Optional) (long) Difference to now in sec. Default is 0
+* <b>ongoing</b> - (Optional) (boolean) false: user cannot swipe out
+* <b>group</b> - (OPtional) (String) diffent for every notification if you want an extra strip.
 * <b>showWhen</b>  - (Optional) (boolean)
+* <b>autocancel</b> - (Optional) (boolean) Make this notification automatically dismissed when the user touches it. 
+* <b>onlyAlertOnce</b> - (Optional) (boolean) 
 * <b>timeoutAfter</b> - (Optional) (long) Specifies a duration in seconds after which this notification should be canceled, if it is not already canceled.
-* <b>largeIcon</b> - (OPtional) Can be string, file, or id. For example:
+* <b>actions</b> - (Optional) (array of objects)
+
+### Parameter action 
+
+* <b>icon</b> - (Optional) 
+* <b>label</b> - (Optional) 
+* <b>name</b> - (Optional) 
+
+```
+actions : [{
+	icon : Ti.Android.App.R.drawable.icon_action_start,
+    label : 'Start',
+    name : 'start'},{
+    …
+    }]
+```
+
+* <b>largeIcon</b> - (Optional) Can be string, file, or id. For example:
 
 ### Variants of largeIcon:
 

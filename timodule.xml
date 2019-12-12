@@ -6,6 +6,7 @@
             <application>
             	<receiver android:name="bencoding.alarmmanager.AlarmNotificationListener" />
             	<receiver android:name="bencoding.alarmmanager.AlarmServiceListener" /> 
+                <receiver android:name="bencoding.alarmmanager.NotificationActionReceiver" /> 
             </application>
             <uses-permission android:name="android.permission.WAKE_LOCK" />
         </manifest>

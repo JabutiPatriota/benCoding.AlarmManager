@@ -15,6 +15,9 @@ import android.app.AlarmManager;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.R;
 import android.app.Notification;
@@ -40,6 +43,7 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 	/* Entry point */
 	@Override
 	public void onReceive(Context context, Intent intent) {
+
 		NotificationManager notificationManager = null;
 		utils.debugLog(">>>>>>> In Alarm Notification Listener >>>>>>>>>>>");
 		Bundle bundle = intent.getExtras();
@@ -50,12 +54,23 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 			utils.infoLog("notification_request_code is null or undefined => assume cancelled");
 			return;
 		}
+		JSONArray actions = null;
+		String actionsString = bundle.getString("notification_actions");
+		try {
+			if (actionsString != null)
+				actions = new JSONArray(actionsString);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		Bitmap largeIcon = bundle.getParcelable("notification_largeIcon");
 		utils.infoLog("largeIcon=" + largeIcon);
 		int requestCode = bundle.getInt("notification_requestcode", AlarmmanagerModule.DEFAULT_REQUEST_CODE);
 		boolean badge = bundle.getBoolean("notification_badge");
 		int importance = bundle.getInt("notification_importance");
 		int priority = bundle.getInt("notification_priority");
+		boolean ongoing = bundle.getBoolean("notification_ongoing");
+		boolean onlyalertonce = bundle.getBoolean("notification_ongoing");
+		boolean autocancel = bundle.getBoolean("notification_ongoing");
 		long when = bundle.getLong("notification_when");
 		long timeoutAfter = bundle.getLong("notification_timeoutAfter");
 		int visibility = bundle.getInt("notification_visibility");
@@ -63,6 +78,7 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 		int badgeIconType = bundle.getInt("notification_badgeIconType");
 		utils.debugLog("onReceive::requestCode is " + requestCode);
 		String contentTitle = bundle.getString("notification_title");
+		String group = bundle.getString("notification_group");
 		String contentText = bundle.getString("notification_msg");
 		String className = bundle.getString("notification_root_classname");
 		boolean hasIcon = bundle.getBoolean("notification_has_icon", true);
@@ -94,7 +110,7 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 		}
 		PendingIntent sender = PendingIntent.getActivity(TiApplication.getInstance().getApplicationContext(),
 				requestCode, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT | Notification.FLAG_AUTO_CANCEL);
-
+		
 		String channelId = "default";
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
 			NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
@@ -121,30 +137,45 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 			channel.setLockscreenVisibility(visibility);
 			notificationManager.createNotificationChannel(channel);
 		} // end of OREO work
-
 		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(ctx, channelId);
-		notificationBuilder.setWhen(when) //
+		notificationBuilder//
+				.setWhen(when) //
 				.setContentText(contentText) //
 				.setContentTitle(contentTitle) //
 				.setSmallIcon(icon) //
-				.setAutoCancel(true).setTicker(contentTitle)//
+				.setOngoing(ongoing).setGroup(group)//
+				.setAutoCancel(true) //
+				.setTicker(contentTitle)//
 				.setContentIntent(sender) //
 				.setStyle(new NotificationCompat.BigTextStyle().bigText(contentText))//
-				.setOnlyAlertOnce(true).setAutoCancel(true)//
+				.setOnlyAlertOnce(onlyalertonce)//
+				.setAutoCancel(autocancel)//
 				.setBadgeIconType(badgeIconType)//
 				.setPriority(priority)//
 				.setVisibility(visibility);
+		if (actions != null) {
+			for (int i = 0; i < actions.length(); i++) {
+				try {
+					JSONObject action = actions.getJSONObject(i);
+					utils.debugLog(action.toString());
+					String label =  action.getString("label");
+					int actionicon = action.getInt("icon");
+					notificationBuilder.addAction(actionicon,label,createPendingIntent(action));
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		if (largeIcon != null) {
 			notificationBuilder.setLargeIcon(largeIcon);
 		} else {
 			utils.debugLog("largeIcon was null ");
 		}
-
 		if (number != -1) {
 			notificationBuilder.setNumber(number);
 		}
 		if (timeoutAfter != -1) {
-			notificationBuilder.setTimeoutAfter(timeoutAfter);
+			notificationBuilder.setTimeoutAfter(timeoutAfter * 1000);
 		}
 		utils.debugLog("setting notification flags in package");
 		notificationBuilder = createNotifyFlags(notificationBuilder, playSound, hasCustomSound, soundPath, doVibrate,
@@ -160,8 +191,7 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 	}
 
 	private void createRepeatNotification(Bundle bundle) {
-		Intent intent = new Intent(TiApplication.getInstance().getApplicationContext(),
-				AlarmNotificationListener.class);
+		Intent intent = new Intent(ctx,AlarmNotificationListener.class);
 		// Use the same extras as the original notification
 		// Update date and time by repeat interval (in milliseconds)
 		int day = bundle.getInt("notification_day");
@@ -214,8 +244,7 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 		utils.infoLog("Creating Alarm Notification repeat for: " + sdf.format(date));
 
 		// Create the Alarm Manager
-		AlarmManager am = (AlarmManager) TiApplication.getInstance().getApplicationContext()
-				.getSystemService(TiApplication.ALARM_SERVICE);
+		AlarmManager am = (AlarmManager) ctx.getSystemService(TiApplication.ALARM_SERVICE);
 		PendingIntent sender = PendingIntent.getBroadcast(TiApplication.getInstance().getApplicationContext(),
 				requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		am.set(AlarmManager.RTC_WAKEUP, ms, sender);
@@ -251,13 +280,25 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 		return notification;
 	}
 
+	private PendingIntent createPendingIntent(JSONObject action) {
+		Intent intent = new Intent(ctx, NotificationServiceReceiver.class);
+		try {
+			intent.setAction(action.getString("name"));
+			intent.putExtra(action.getString("id"), 0);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, 0, intent, 0);
+		return pendingIntent;
+	}
+
 	private Intent createIntent(String className) {
 		try {
 			if (utils.isEmptyString(className)) {
 				utils.infoLog("[AlarmManager] Using application Start Activity");
-				Intent iStartActivity = TiApplication.getInstance().getApplicationContext().getPackageManager()
-						.getLaunchIntentForPackage(
-								TiApplication.getInstance().getApplicationContext().getPackageName());
+				Intent iStartActivity = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
 				iStartActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				iStartActivity.addCategory(Intent.CATEGORY_LAUNCHER);
 				iStartActivity.setAction(Intent.ACTION_MAIN);
@@ -266,7 +307,7 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 				utils.infoLog("[AlarmManager] Trying to get a class for name '" + className + "'");
 				@SuppressWarnings("rawtypes")
 				Class intentClass = Class.forName(className);
-				Intent intentFromClass = new Intent(TiApplication.getInstance().getApplicationContext(), intentClass);
+				Intent intentFromClass = new Intent(ctx, intentClass);
 				// Add the flags needed to restart
 				intentFromClass.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				intentFromClass.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -278,18 +319,10 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 			return null;
 		}
 	}
-
-	private class Filewalker {
-		public void walk(File root) {
-			File[] list = root.listFiles();
-			for (File f : list) {
-				if (f.isDirectory()) {
-					utils.debugLog("Dir: " + f.getAbsoluteFile());
-					walk(f);
-				} else {
-					utils.debugLog("File: " + f.getAbsoluteFile());
-				}
-			}
+	public class NotificationServiceReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context ctx, Intent intent) {
+			
 		}
 	}
 }

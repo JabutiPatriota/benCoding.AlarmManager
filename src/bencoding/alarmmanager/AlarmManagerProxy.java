@@ -6,6 +6,7 @@
  */
 package bencoding.alarmmanager;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import ti.modules.titanium.filesystem.FileProxy;
 import java.util.GregorianCalendar;
@@ -13,17 +14,22 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.AlarmManager;
 import android.app.NotificationManager;
@@ -82,6 +88,7 @@ public class AlarmManagerProxy extends KrollProxy {
 		String contentTitle = "";
 		String contentText = "";
 		String notificationSound = "";
+		String group = "defaultgroup";
 		String channelName = "notification";
 		int priority = NotificationCompat.PRIORITY_MAX;
 		int visibility = NotificationCompat.VISIBILITY_PUBLIC;
@@ -92,7 +99,7 @@ public class AlarmManagerProxy extends KrollProxy {
 		int badgeIconType = NotificationCompat.BADGE_ICON_NONE;
 		boolean showWhen = true;
 		boolean badge = true;
-
+		
 		if (args.containsKeyAndNotNull("priority")) {
 			priority = args.getInt("priority");
 		}
@@ -108,17 +115,23 @@ public class AlarmManagerProxy extends KrollProxy {
 		if (args.containsKeyAndNotNull("when")) {
 			when = 1000 * args.getInt("when") + System.currentTimeMillis();
 		}
+		if (args.containsKeyAndNotNull("group")) {
+			group = args.getString("group");
+		}
 		if (args.containsKeyAndNotNull("badgeIconType")) {
 			badgeIconType = args.getInt("badgeIconType");
 		}
-		;
+
 		if (args.containsKeyAndNotNull("badge")) {
 			badge = args.getBoolean("badge");
 		}
-		;
+
+		boolean ongoing = optionIsEnabled(args, "ongoing");
 		boolean playSound = optionIsEnabled(args, "playSound");
 		boolean doVibrate = optionIsEnabled(args, "vibrate");
 		boolean showLights = optionIsEnabled(args, "showLights");
+		boolean onlyalertonce = optionIsEnabled(args, "onlyAlertOnce");
+		boolean autocancel = optionIsEnabled(args, "autoCancel");
 		if (args.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)
 				|| args.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TEXT)) {
 			if (args.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)) {
@@ -128,7 +141,6 @@ public class AlarmManagerProxy extends KrollProxy {
 				contentText = TiConvert.toString(args, TiC.PROPERTY_CONTENT_TEXT);
 			}
 		}
-
 		if (args.containsKey("channelName")) {
 			channelName = TiConvert.toString(args, "channelName");
 		}
@@ -156,12 +168,14 @@ public class AlarmManagerProxy extends KrollProxy {
 				AlarmNotificationListener.class);
 		// Add some extra information so when the alarm goes off we have enough to
 		// create the notification
-		intent.putExtra("notification_largeIcon", readFilenameOfLargeImageFromArgs(args));
+		intent.putExtra("notification_largeIcon", readFilenameFromObject(args.get("largeIcon")));
 		intent.putExtra("notification_title", contentTitle);
+		intent.putExtra("notification_group", group);
 		intent.putExtra("notification_msg", contentText);
 		intent.putExtra("notification_has_icon", (notificationIcon != 0));
 		intent.putExtra("notification_icon", notificationIcon);
 		intent.putExtra("notification_sound", notificationSound);
+		intent.putExtra("notification_ongoing", ongoing);
 		intent.putExtra("notification_play_sound", playSound);
 		intent.putExtra("notification_vibrate", doVibrate);
 		intent.putExtra("notification_show_lights", showLights);
@@ -174,9 +188,18 @@ public class AlarmManagerProxy extends KrollProxy {
 		intent.putExtra("notification_importance", importance);
 		intent.putExtra("notification_priority", priority);
 		intent.putExtra("notification_visibility", visibility);
+		intent.putExtra("notification_onlyalertonce", onlyalertonce);
+		intent.putExtra("notification_autocancel", autocancel);
 		intent.putExtra("notification_number", number);
 		intent.putExtra("notification_badgeIconType", badgeIconType);
-
+		try {
+			JSONArray actions = getActions(args.get("actions"));
+			if (actions!=null)
+				intent.putExtra("notification_actions",actions.toString());
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
 		// As of API 19 setRepeating == setInexactRepeating, see also:
 		// http://developer.android.com/reference/android/app/AlarmManager.html#setRepeating(int,
 		// long, long, android.app.PendingIntent)
@@ -281,15 +304,7 @@ public class AlarmManagerProxy extends KrollProxy {
 	public void addAlarmNotification(@SuppressWarnings("rawtypes") HashMap hm) {
 		@SuppressWarnings("unchecked")
 		KrollDict args = new KrollDict(hm);
-		for (String key : args.keySet()) {
-			utils.infoLog(key + "=" + args.get(key));
-		}
-		if (args.containsKeyAndNotNull("moment")) {
-			utils.infoLog(args.getString("moment"));
-		}
-		if (!args.containsKeyAndNotNull("minute") && !args.containsKeyAndNotNull("second")) {
-			throw new IllegalArgumentException("The minute or second field is required");
-		}
+
 		if (!args.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)) {
 			throw new IllegalArgumentException("The context title field (contentTitle) is required");
 		}
@@ -499,6 +514,39 @@ public class AlarmManagerProxy extends KrollProxy {
 		}
 	}
 
+	private JSONArray getActions(Object _actions) throws JSONException {
+		if (_actions==null) return null;
+		if (!(_actions.getClass().isArray())) {
+			throw new IllegalArgumentException("items must be an array");
+		}
+		/* Casting to array */
+		Object[] actionArray = (Object[]) _actions;
+		JSONArray actions  = new JSONArray();
+		for (int index = 0; index < actionArray.length; index++) {
+			JSONObject action = new JSONObject();
+			KrollDict actionParam = new KrollDict(
+					(Map<? extends String, ? extends Object>) actionArray[index]);
+			if (actionParam.containsKeyAndNotNull("name")) {
+				action.put("name",actionParam.getString("name"));
+			}
+			if (actionParam.containsKeyAndNotNull("label")) {
+				action.put("label",actionParam.getString("label"));
+			}
+			if (actionParam.containsKeyAndNotNull("icon")) {
+				utils.debugLog("icon="+ actionParam.getInt("icon"));
+				action.put("icon",actionParam.getInt("icon"));
+			} else utils.debugLog("no icon given for action ");
+			if (actionParam.containsKeyAndNotNull("id")) {
+				action.put("id",actionParam.getString("id"));
+			}
+			actions.put(action);
+		}
+		return actions;
+	}
+	
+	
+	
+	
 	private static boolean isInteger(Object object) {
 		if (object instanceof Integer) {
 			return true;
@@ -515,54 +563,50 @@ public class AlarmManagerProxy extends KrollProxy {
 		return true;
 	}
 
-	private Bitmap readFilenameOfLargeImageFromArgs(KrollDict args) {
-		if (args.containsKeyAndNotNull("largeIcon")) {
-			Object readPath = args.get("largeIcon");
-			TiBaseFile TiFile = null;
-			try {
-				if (isInteger(readPath)) {
-					utils.debugLog("file is id of ressources");
-					int resourceId = (int) readPath;
-					 return
-					BitmapFactory.decodeResource(TiApplication.getInstance().getResources(),
-					 resourceId);
-				} else if (readPath instanceof TiFile) {
-					utils.debugLog("file is TiFile");
-					TiFile = TiFileFactory.createTitaniumFile(((TiFile) readPath).getFile().getAbsolutePath(), false);
+	private Bitmap readFilenameFromObject(Object fileObject) {
+		TiBaseFile TiFile = null;
+		try {
+			if (isInteger(fileObject)) {
+				utils.debugLog("file is id of ressources");
+				int resourceId = (int) fileObject;
+				return BitmapFactory.decodeResource(TiApplication.getInstance().getResources(), resourceId);
+			} else if (fileObject instanceof TiFile) {
+				utils.debugLog("file is TiFile");
+				TiFile = TiFileFactory.createTitaniumFile(((TiFile) fileObject).getFile().getAbsolutePath(), false);
+			} else {
+				if (fileObject instanceof FileProxy) {
+					utils.debugLog("file is FileProxy");
+					TiFile = ((FileProxy) fileObject).getBaseFile();
 				} else {
-					if (readPath instanceof FileProxy) {
-						utils.debugLog("file is FileProxy");
-						TiFile = ((FileProxy) readPath).getBaseFile();
-					} else {
-						if (readPath instanceof TiBaseFile) {
-							Log.d(LCAT, "file is TiBaseFile");
-							TiFile = (TiBaseFile) readPath;
-						} else if (readPath instanceof String) {
-							// see:
-							// https://github.com/appcelerator/titanium_mobile/blob/master/android/modules/database/src/java/ti/modules/titanium/database/DatabaseModule.java
-							String url = resolveUrl(null, (String) readPath);
-							utils.debugLog("resolvedUrl=" + url);
-							TiFile = TiFileFactory.createTitaniumFile(new String[] { url }, false);
-						}
+					if (fileObject instanceof TiBaseFile) {
+						Log.d(LCAT, "file is TiBaseFile");
+						TiFile = (TiBaseFile) fileObject;
+					} else if (fileObject instanceof String) {
+						// see:
+						// https://github.com/appcelerator/titanium_mobile/blob/master/android/modules/database/src/java/ti/modules/titanium/database/DatabaseModule.java
+						String uriString = resolveUrl(null, (String) fileObject);
+						utils.debugLog("resolvedUrl=" + uriString);
+						TiFile = TiFileFactory.createTitaniumFile(new String[] { uriString }, false);
 					}
 				}
-				if (TiFile == null) {
-					utils.debugLog("TiFile is null");
-					return null;
-				}
-				if (!TiFile.exists()) {
-					utils.debugLog("TiFile doesn't exists");
-					return null;
-				}
-				return Bitmap.createScaledBitmap(TiUIHelper.createBitmap(TiFile.getInputStream()), 100, 100, true);
-			} catch (Exception e) {
-				utils.debugLog(e.getMessage());
 			}
+			if (TiFile == null) {
+				utils.debugLog("TiFile is null");
+				return null;
+			}
+			if (TiFile.exists()) {
+				File file = TiFile.getNativeFile().getAbsoluteFile();
+				utils.debugLog("absolutePath=" + file.toURI().toString() 
+					+ "  fileExists=" + file.exists());
+				TiFileProxy result = new TiFileProxy(TiFile);
+				utils.debugLog(result.getNativePath());
+				return Bitmap.createScaledBitmap(TiUIHelper.createBitmap(TiFile.getInputStream()), 100, 100, true);
+			} else
+				utils.debugLog("File not exists");
+		} catch (Exception e) {
+			utils.debugLog(e.getMessage());
 		}
+
 		return null;
 	}
-	/*
-	 * bundle.putParcelable("BitmapImage",bitmapname); Bitmap bitmapimage =
-	 * getIntent().getExtras().getParcelable("BitmapImage");
-	 */
 }

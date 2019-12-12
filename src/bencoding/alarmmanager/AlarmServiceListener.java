@@ -7,6 +7,7 @@
 package bencoding.alarmmanager;
 
 import org.appcelerator.titanium.TiApplication;
+import org.json.JSONArray;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
