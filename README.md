@@ -91,17 +91,20 @@ You can create an AlarmNotification using the below properties:
 * <b>timeoutAfter</b> - (Optional) (long) Specifies a duration in seconds after which this notification should be canceled, if it is not already canceled.
 * <b>actions</b> - (Optional) (array of objects)
 
-### Parameter action 
+### Parameter action	 
 
 * <b>icon</b> - (Optional) 
 * <b>label</b> - (Optional) 
-* <b>name</b> - (Optional) 
+* <b>actionname</b> - (Optional) 
+* <b>extradata</b> - (Optional) 
 
 ```
 actions : [{
 	icon : Ti.Android.App.R.drawable.icon_action_start,
     label : 'Start',
-    name : 'start'},{
+    actionname : 'START_RADIO'
+    extradata : "DLF"
+    },{
     …
     }]
 ```

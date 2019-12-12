@@ -34,6 +34,7 @@ import org.json.JSONObject;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -164,8 +165,7 @@ public class AlarmManagerProxy extends KrollProxy {
 			notificationSound = resolveUrl(null, TiConvert.toString(args, TiC.PROPERTY_SOUND));
 		}
 
-		Intent intent = new Intent(TiApplication.getInstance().getApplicationContext(),
-				AlarmNotificationListener.class);
+		Intent intent = new Intent(ctx,AlarmNotificationListener.class);
 		// Add some extra information so when the alarm goes off we have enough to
 		// create the notification
 		intent.putExtra("notification_largeIcon", readFilenameFromObject(args.get("largeIcon")));
@@ -225,8 +225,8 @@ public class AlarmManagerProxy extends KrollProxy {
 
 	@Kroll.method
 	public String findStartActivityName() {
-		return TiApplication.getInstance().getApplicationContext().getPackageManager()
-				.getLaunchIntentForPackage(TiApplication.getInstance().getApplicationContext().getPackageName())
+		return ctx.getPackageManager()
+				.getLaunchIntentForPackage(ctx.getPackageName())
 				.getClass().getName();
 	}
 
@@ -250,10 +250,9 @@ public class AlarmManagerProxy extends KrollProxy {
 		KrollDict args = new KrollDict(placeholder);
 
 		// Create the Alarm Manager
-		AlarmManager am = (AlarmManager) TiApplication.getInstance().getApplicationContext()
-				.getSystemService(TiApplication.ALARM_SERVICE);
+		AlarmManager am = (AlarmManager) ctx.getSystemService(TiApplication.ALARM_SERVICE);
 		Intent intent = createAlarmNotifyIntent(args, intentRequestCode);
-		PendingIntent sender = PendingIntent.getBroadcast(TiApplication.getInstance().getApplicationContext(),
+		PendingIntent sender = PendingIntent.getBroadcast(ctx,
 				intentRequestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		am.cancel(sender);
 		utils.debugLog("Alarm Notification Canceled");
@@ -344,10 +343,9 @@ public class AlarmManagerProxy extends KrollProxy {
 		utils.debugLog("Creating Alarm Notification for: " + sdf.format(calendar.getTime()));
 
 		// Create the Alarm Manager
-		AlarmManager am = (AlarmManager) TiApplication.getInstance().getApplicationContext()
-				.getSystemService(TiApplication.ALARM_SERVICE);
+		AlarmManager am = (AlarmManager) ctx.getSystemService(TiApplication.ALARM_SERVICE);
 		Intent intent = createAlarmNotifyIntent(args, requestCode);
-		PendingIntent sender = PendingIntent.getBroadcast(TiApplication.getInstance().getApplicationContext(),
+		PendingIntent sender = PendingIntent.getBroadcast(ctx,
 				requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		if (isRepeating && !intent.hasExtra("notification_repeat_ms")) {
@@ -363,7 +361,7 @@ public class AlarmManagerProxy extends KrollProxy {
 
 	private Intent createAlarmServiceIntent(KrollDict args) {
 		String serviceName = args.getString("service");
-		Intent intent = new Intent(TiApplication.getInstance().getApplicationContext(), AlarmServiceListener.class);
+		Intent intent = new Intent(ctx, AlarmServiceListener.class);
 		intent.putExtra("alarm_service_name", serviceName);
 		// Pass in flag if we need to restart the service on each call
 		intent.putExtra("alarm_service_force_restart", (optionIsEnabled(args, "forceRestart")));
@@ -411,11 +409,9 @@ public class AlarmManagerProxy extends KrollProxy {
 		KrollDict args = new KrollDict(placeholder);
 
 		// Create the Alarm Manager
-		AlarmManager am = (AlarmManager) TiApplication.getInstance().getApplicationContext()
-				.getSystemService(TiApplication.ALARM_SERVICE);
+		AlarmManager am = (AlarmManager) ctx.getSystemService(TiApplication.ALARM_SERVICE);
 		Intent intent = createAlarmServiceIntent(args);
-		PendingIntent sender = PendingIntent.getBroadcast(TiApplication.getInstance().getApplicationContext(),
-				intentRequestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent sender = PendingIntent.getBroadcast(ctx,intentRequestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		am.cancel(sender);
 		sender.cancel();
 		utils.infoLog("Alarm Service Canceled");
@@ -467,23 +463,20 @@ public class AlarmManagerProxy extends KrollProxy {
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 		utils.debugLog("Creating Alarm Notification for: " + sdf.format(calendar.getTime()));
 
-		AlarmManager am = (AlarmManager) TiApplication.getInstance().getApplicationContext()
-				.getSystemService(TiApplication.ALARM_SERVICE);
+		AlarmManager am = (AlarmManager) ctx.getSystemService(TiApplication.ALARM_SERVICE);
 		Intent intent = createAlarmServiceIntent(args);
 
 		if (isRepeating) {
 			utils.debugLog("Setting Alarm to repeat at frequency " + repeatingFrequency);
-			PendingIntent pendingIntent = PendingIntent.getBroadcast(
-					TiApplication.getInstance().getApplicationContext(), requestCode, intent,
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, requestCode, intent,
 					PendingIntent.FLAG_UPDATE_CURRENT);
 			am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), repeatingFrequency, pendingIntent);
 		} else {
-			PendingIntent sender = PendingIntent.getBroadcast(TiApplication.getInstance().getApplicationContext(),
-					requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			PendingIntent sender = PendingIntent.getBroadcast(ctx,requestCode, intent, 
+					PendingIntent.FLAG_UPDATE_CURRENT);
 			utils.debugLog("Setting Alarm for a single run");
 			am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
 		}
-
 		utils.infoLog("Alarm Service Request Created");
 	}
 
@@ -526,8 +519,8 @@ public class AlarmManagerProxy extends KrollProxy {
 			JSONObject action = new JSONObject();
 			KrollDict actionParam = new KrollDict(
 					(Map<? extends String, ? extends Object>) actionArray[index]);
-			if (actionParam.containsKeyAndNotNull("name")) {
-				action.put("name",actionParam.getString("name"));
+			if (actionParam.containsKeyAndNotNull("actionname")) {
+				action.put("actionname",actionParam.getString("actionname"));
 			}
 			if (actionParam.containsKeyAndNotNull("label")) {
 				action.put("label",actionParam.getString("label"));
@@ -536,8 +529,8 @@ public class AlarmManagerProxy extends KrollProxy {
 				utils.debugLog("icon="+ actionParam.getInt("icon"));
 				action.put("icon",actionParam.getInt("icon"));
 			} else utils.debugLog("no icon given for action ");
-			if (actionParam.containsKeyAndNotNull("id")) {
-				action.put("id",actionParam.getString("id"));
+			if (actionParam.containsKeyAndNotNull("extradata")) {
+				action.put("extradata",actionParam.getString("extradata"));
 			}
 			actions.put(action);
 		}
@@ -609,4 +602,12 @@ public class AlarmManagerProxy extends KrollProxy {
 
 		return null;
 	}
+	
+	public class NotificationActionReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context ctx, Intent intent) {
+			fireEvent("",new KrollDict());
+			Log.d("AlarmManager","NotificationActionReceiver::onReceive");
+		}	
+	}	
 }
