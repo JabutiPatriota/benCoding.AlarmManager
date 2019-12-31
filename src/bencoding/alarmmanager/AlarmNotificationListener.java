@@ -13,6 +13,8 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import android.app.AlarmManager;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.json.JSONArray;
@@ -153,11 +155,11 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 		if (actions != null) {
 			for (int i = 0; i < actions.length(); i++) {
 				try {
-					JSONObject action = actions.getJSONObject(i);
-					utils.debugLog(action.toString());
-					String label =  action.getString("label");
-					int actionicon = action.getInt("icon");
-					notificationBuilder.addAction(actionicon,label,createPendingIntent(action,className,requestCode));
+					JSONObject a = actions.getJSONObject(i);
+					utils.debugLog(a.toString());
+					String label =  a.getString("label");
+					int actionicon = a.getInt("icon");
+					notificationBuilder.addAction(actionicon,label,createPendingIntent(a,className,requestCode));
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -279,6 +281,7 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 
 	private PendingIntent createPendingIntent(JSONObject action,String className,int requestCode) {
 		Intent intent = createIntent(className);
+		
 		try {
 			intent.setAction(action.getString("actionname"));
 			intent.putExtra("extradata",action.getString("extradata"));
