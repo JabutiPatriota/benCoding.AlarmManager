@@ -14,7 +14,7 @@ Here you will find two ways to create alarms: *addAlarmNotification* and *addAla
 No project, "how do I", or "can it" support is provided for this module. The code is available for your reference and usage. If you find an issue and want to contribute Pull Requests are appreciated.  If you are interested in being a contributor and helping with community support please contact me via Twitter.
 
 ## Before you start
-* This is an Android module designed to work with Titanium SDK 6.0.0 or greater.
+* This is an Android module designed to work with Titanium SDK 9.0.0.GA or greater.
 * Before getting start please note you need to compile this module yourself
 
 ## Building from source

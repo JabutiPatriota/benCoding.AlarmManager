@@ -12,7 +12,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import android.app.Activity;
 import android.app.NotificationManager;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 
 @Kroll.module(name = "Alarmmanager", id = "bencoding.alarmmanager")
 public class AlarmmanagerModule extends KrollModule {

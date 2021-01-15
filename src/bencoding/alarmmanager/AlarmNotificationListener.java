@@ -34,10 +34,10 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompat.Builder;
-import android.support.v4.content.FileProvider;
-import android.support.v4.app.NotificationCompat.BigTextStyle;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationCompat.Builder;
+import androidx.core.content.FileProvider;
+import androidx.core.app.NotificationCompat.BigTextStyle;
 
 public class AlarmNotificationListener extends BroadcastReceiver {
 	public Context ctx = TiApplication.getInstance().getApplicationContext();
