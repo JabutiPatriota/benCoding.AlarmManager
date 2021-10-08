@@ -14,6 +14,7 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 public class AlarmServiceListener  extends BroadcastReceiver {
@@ -57,7 +58,11 @@ public class AlarmServiceListener  extends BroadcastReceiver {
       		serviceIntent.putExtra("interval", bundle.getLong("alarm_service_interval", 45*60*1000L)); // Default to 45mins
       	}
         serviceIntent.putExtra("customData",bundle.getString("customData","[]"));
-        context.startService(serviceIntent); 
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			context.startForegroundService(serviceIntent);
+		} else {
+			context.startService(serviceIntent);
+		}
         utils.infoLog("Alarm Service Started");	
     }
 }
