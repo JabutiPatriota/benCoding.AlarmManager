@@ -109,7 +109,7 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 			notifyIntent.putExtra("customData", customData);
 		}
 		/* sender opens activity and restart app*/
-		PendingIntent sender = PendingIntent.getActivity(ctx,requestCode, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT | Notification.FLAG_AUTO_CANCEL);
+		PendingIntent sender = PendingIntent.getActivity(ctx,requestCode, notifyIntent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT | Notification.FLAG_AUTO_CANCEL);
 		String channelId = "default";
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
 			NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
@@ -281,7 +281,7 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 
 	private PendingIntent createPendingIntent(JSONObject action,String className,int requestCode) {
 		Intent intent = createIntent(className);
-		
+
 		try {
 			intent.setAction(action.getString("actionname"));
 			intent.putExtra("extradata",action.getString("extradata"));
@@ -291,7 +291,7 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 			e.printStackTrace();
 		}
 		intent.putExtra("requestCode", requestCode);
-		return PendingIntent.getActivity(ctx,requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | Notification.FLAG_AUTO_CANCEL);
+		return PendingIntent.getActivity(ctx,requestCode, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT | Notification.FLAG_AUTO_CANCEL);
 	}
 
 	private Intent createIntent(String className) {
@@ -322,7 +322,7 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 	public class NotificationServiceReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context ctx, Intent intent) {
-			
+
 		}
 	}
 }
