@@ -253,7 +253,7 @@ public class AlarmManagerProxy extends KrollProxy {
 		AlarmManager am = (AlarmManager) ctx.getSystemService(TiApplication.ALARM_SERVICE);
 		Intent intent = createAlarmNotifyIntent(args, intentRequestCode);
 		PendingIntent sender = PendingIntent.getBroadcast(ctx,
-				intentRequestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+				intentRequestCode, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 		am.cancel(sender);
 		utils.debugLog("Alarm Notification Canceled");
 	}
@@ -346,7 +346,7 @@ public class AlarmManagerProxy extends KrollProxy {
 		AlarmManager am = (AlarmManager) ctx.getSystemService(TiApplication.ALARM_SERVICE);
 		Intent intent = createAlarmNotifyIntent(args, requestCode);
 		PendingIntent sender = PendingIntent.getBroadcast(ctx,
-				requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+				requestCode, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
 		if (isRepeating && !intent.hasExtra("notification_repeat_ms")) {
 			utils.debugLog("Setting Alarm to repeat");
@@ -411,7 +411,7 @@ public class AlarmManagerProxy extends KrollProxy {
 		// Create the Alarm Manager
 		AlarmManager am = (AlarmManager) ctx.getSystemService(TiApplication.ALARM_SERVICE);
 		Intent intent = createAlarmServiceIntent(args);
-		PendingIntent sender = PendingIntent.getBroadcast(ctx,intentRequestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent sender = PendingIntent.getBroadcast(ctx,intentRequestCode, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 		am.cancel(sender);
 		sender.cancel();
 		utils.infoLog("Alarm Service Canceled");
@@ -469,11 +469,11 @@ public class AlarmManagerProxy extends KrollProxy {
 		if (isRepeating) {
 			utils.debugLog("Setting Alarm to repeat at frequency " + repeatingFrequency);
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, requestCode, intent,
-					PendingIntent.FLAG_UPDATE_CURRENT);
+					PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 			am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), repeatingFrequency, pendingIntent);
 		} else {
-			PendingIntent sender = PendingIntent.getBroadcast(ctx,requestCode, intent, 
-					PendingIntent.FLAG_UPDATE_CURRENT);
+			PendingIntent sender = PendingIntent.getBroadcast(ctx,requestCode, intent,
+					PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 			utils.debugLog("Setting Alarm for a single run");
 			am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
 		}

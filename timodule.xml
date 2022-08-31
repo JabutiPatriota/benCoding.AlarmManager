@@ -1,14 +1,12 @@
-<ti:module
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:ti="http://ti.appcelerator.org">
+<ti:module xmlns:android="http://schemas.android.com/apk/res/android" xmlns:ti="http://ti.appcelerator.org">
     <android xmlns:android="http://schemas.android.com/apk/res/android">
         <manifest>
             <application>
-            	<receiver android:name="bencoding.alarmmanager.AlarmNotificationListener" />
-            	<receiver android:name="bencoding.alarmmanager.AlarmServiceListener" /> 
-                <receiver android:name="bencoding.alarmmanager.AlarmManagerProxy.NotificationActionReceiver" /> 
+                <receiver android:name="bencoding.alarmmanager.AlarmNotificationListener" android:exported="false"/>
+                <receiver android:name="bencoding.alarmmanager.AlarmServiceListener" android:exported="false"/>
+                <receiver android:name="bencoding.alarmmanager.AlarmManagerProxy.NotificationActionReceiver" android:exported="false"/>
             </application>
-            <uses-permission android:name="android.permission.WAKE_LOCK" />
+            <uses-permission android:name="android.permission.WAKE_LOCK"/>
         </manifest>
     </android>
 </ti:module>
