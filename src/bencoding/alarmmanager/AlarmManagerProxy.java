@@ -94,7 +94,7 @@ public class AlarmManagerProxy extends KrollProxy {
 		int priority = NotificationCompat.PRIORITY_MAX;
 		int visibility = NotificationCompat.VISIBILITY_PUBLIC;
 		long timeoutAfter = -1;
-		int importance = NotificationManager.IMPORTANCE_MAX;
+		int importance = NotificationManager.IMPORTANCE_HIGH;
 		long when = System.currentTimeMillis();
 		int number = -1;
 		int badgeIconType = NotificationCompat.BADGE_ICON_NONE;

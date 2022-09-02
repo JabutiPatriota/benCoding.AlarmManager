@@ -23,7 +23,7 @@ public class AlarmmanagerModule extends KrollModule {
 	@Kroll.constant
 	public static final int NOTIFICATION_IMPORTANCE_DEFAULT = NotificationManager.IMPORTANCE_DEFAULT;
 	@Kroll.constant
-	public static final int NOTIFICATION_IMPORTANCE_HIGHT = NotificationManager.IMPORTANCE_HIGH;
+	public static final int NOTIFICATION_IMPORTANCE_HIGH = NotificationManager.IMPORTANCE_HIGH;
 	@Kroll.constant
 	public static final int NOTIFICATION_IMPORTANCE_LOW = NotificationManager.IMPORTANCE_LOW;
 	@Kroll.constant
