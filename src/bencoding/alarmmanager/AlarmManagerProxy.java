@@ -252,6 +252,7 @@ public class AlarmManagerProxy extends KrollProxy {
 		// Create the Alarm Manager
 		AlarmManager am = (AlarmManager) ctx.getSystemService(TiApplication.ALARM_SERVICE);
 		Intent intent = createAlarmNotifyIntent(args, intentRequestCode);
+		intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
 		PendingIntent sender = PendingIntent.getBroadcast(ctx,
 				intentRequestCode, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 		am.cancel(sender);
@@ -337,14 +338,15 @@ public class AlarmManagerProxy extends KrollProxy {
 		// Get the requestCode if provided, if none provided
 		// we use 192837 for backwards compatibility
 		int requestCode = args.optInt("requestCode", AlarmmanagerModule.DEFAULT_REQUEST_CODE);
-		utils.debugLog("addAlarmNotification::requestCode=" + requestCode);
+		utils.infoLog("addAlarmNotification::requestCode=" + requestCode);
 		String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-		utils.debugLog("Creating Alarm Notification for: " + sdf.format(calendar.getTime()));
+		utils.infoLog("Creating Alarm Notification for: " + sdf.format(calendar.getTime()));
 
 		// Create the Alarm Manager
 		AlarmManager am = (AlarmManager) ctx.getSystemService(TiApplication.ALARM_SERVICE);
 		Intent intent = createAlarmNotifyIntent(args, requestCode);
+		intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
 		PendingIntent sender = PendingIntent.getBroadcast(ctx,
 				requestCode, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -353,7 +355,7 @@ public class AlarmManagerProxy extends KrollProxy {
 			am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), repeatingFrequency, sender);
 		} else {
 			utils.debugLog("Setting Alarm for a single run");
-			am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
+			am.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
 		}
 
 		utils.infoLog("Alarm Notification Created .....");
@@ -411,6 +413,7 @@ public class AlarmManagerProxy extends KrollProxy {
 		// Create the Alarm Manager
 		AlarmManager am = (AlarmManager) ctx.getSystemService(TiApplication.ALARM_SERVICE);
 		Intent intent = createAlarmServiceIntent(args);
+		intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
 		PendingIntent sender = PendingIntent.getBroadcast(ctx,intentRequestCode, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 		am.cancel(sender);
 		sender.cancel();
@@ -468,14 +471,16 @@ public class AlarmManagerProxy extends KrollProxy {
 
 		if (isRepeating) {
 			utils.debugLog("Setting Alarm to repeat at frequency " + repeatingFrequency);
+			intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, requestCode, intent,
 					PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 			am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), repeatingFrequency, pendingIntent);
 		} else {
+			intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
 			PendingIntent sender = PendingIntent.getBroadcast(ctx,requestCode, intent,
 					PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 			utils.debugLog("Setting Alarm for a single run");
-			am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
+			am.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
 		}
 		utils.infoLog("Alarm Service Request Created");
 	}

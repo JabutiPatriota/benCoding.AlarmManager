@@ -7,6 +7,8 @@
                 <receiver android:name="bencoding.alarmmanager.AlarmManagerProxy.NotificationActionReceiver" android:exported="false"/>
             </application>
             <uses-permission android:name="android.permission.WAKE_LOCK"/>
+            <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+            <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
         </manifest>
     </android>
 </ti:module>

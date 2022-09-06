@@ -244,9 +244,10 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 
 		// Create the Alarm Manager
 		AlarmManager am = (AlarmManager) ctx.getSystemService(TiApplication.ALARM_SERVICE);
+		intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
 		PendingIntent sender = PendingIntent.getBroadcast(TiApplication.getInstance().getApplicationContext(),
 				requestCode, intent,  PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-		am.set(AlarmManager.RTC_WAKEUP, ms, sender);
+		am.setExact(AlarmManager.RTC_WAKEUP, ms, sender);
 
 	}
 
