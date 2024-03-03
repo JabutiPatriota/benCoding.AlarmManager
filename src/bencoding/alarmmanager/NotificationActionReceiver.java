@@ -12,9 +12,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-	public class NotificationActionReceiver extends BroadcastReceiver {
-		@Override
-		public void onReceive(Context ctx, Intent intent) {
-			Log.d("AlarmManager","NotificationActionReceiver::onReceive");
-		}	
+public class NotificationActionReceiver extends BroadcastReceiver {
+    @Override
+    public void onReceive(Context ctx, Intent intent) {
+        Log.d("AlarmManager", "NotificationActionReceiver::onReceive");
+    }
 }
