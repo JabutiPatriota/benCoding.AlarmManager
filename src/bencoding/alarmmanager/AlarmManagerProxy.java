@@ -201,6 +201,7 @@ public class AlarmManagerProxy extends KrollProxy {
         intent.putExtra("notification_vibrate", doVibrate);
         intent.putExtra("notification_show_lights", showLights);
         intent.putExtra("notification_requestcode", requestCode);
+        intent.putExtra("notification_request_code", requestCode);
         intent.putExtra("notification_root_classname", AlarmmanagerModule.rootActivityClassName);
         intent.putExtra("notification_channel_name", channelName);
         intent.putExtra("notification_when", when);
