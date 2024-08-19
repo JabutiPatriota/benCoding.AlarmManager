@@ -46,6 +46,7 @@ import android.net.Uri;
 
 import androidx.core.app.NotificationCompat;
 
+import android.os.Build;
 import android.util.Log;
 
 import bencoding.alarmmanager.AlarmmanagerModule;
@@ -532,6 +533,17 @@ public class AlarmManagerProxy extends KrollProxy {
                 AlarmmanagerModule.rootActivityClassName = (String) className;
             }
         }
+    }
+
+
+    @Kroll.getProperty
+    public boolean canScheduleExactAlarms() {
+        //
+        AlarmManager am = (AlarmManager) ctx.getSystemService(TiApplication.ALARM_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return am.canScheduleExactAlarms();
+        }
+        return false;
     }
 
     private JSONArray getActions(Object _actions) throws JSONException {
