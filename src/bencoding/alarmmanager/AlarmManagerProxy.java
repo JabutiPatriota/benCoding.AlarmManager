@@ -154,7 +154,7 @@ public class AlarmManagerProxy extends KrollProxy {
         boolean doVibrate = optionIsEnabled(args, "vibrate");
         boolean showLights = optionIsEnabled(args, "showLights");
         boolean onlyalertonce = optionIsEnabled(args, "onlyAlertOnce");
-        boolean autocancel = optionIsEnabled(args, "autoCancel");
+        boolean autocancel = optionIsEnabled(args, "autocancel");
         if (args.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)
                 || args.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TEXT)) {
             if (args.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)) {
