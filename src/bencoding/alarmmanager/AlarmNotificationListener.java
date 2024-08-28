@@ -72,7 +72,7 @@ public class AlarmNotificationListener extends BroadcastReceiver {
         int priority = bundle.getInt("notification_priority");
         boolean ongoing = bundle.getBoolean("notification_ongoing");
         boolean onlyalertonce = bundle.getBoolean("notification_ongoing");
-        boolean autocancel = bundle.getBoolean("notification_ongoing");
+        boolean autocancel = bundle.getBoolean("notification_autocancel");
         long when = bundle.getLong("notification_when");
         long timeoutAfter = bundle.getLong("notification_timeoutAfter");
         int visibility = bundle.getInt("notification_visibility");
