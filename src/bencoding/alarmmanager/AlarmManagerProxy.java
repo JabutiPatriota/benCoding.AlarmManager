@@ -190,7 +190,9 @@ public class AlarmManagerProxy extends KrollProxy {
         Intent intent = new Intent(ctx, AlarmNotificationListener.class);
         // Add some extra information so when the alarm goes off we have enough to
         // create the notification
-        intent.putExtra("notification_largeIcon", readFilenameFromObject(args.get("largeIcon")));
+        if (args.containsKey("largeIcon")) {
+            intent.putExtra("notification_largeIcon", readFilenameFromObject(args.get("largeIcon")));
+        }
         intent.putExtra("notification_title", contentTitle);
         intent.putExtra("notification_group", group);
         intent.putExtra("notification_msg", contentText);
