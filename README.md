@@ -8,7 +8,7 @@ This project can be found on github at [https://github.com/benbahrenburg/benCodi
 This module, provides access to the Android AlarmManager, which works very differently then iOS Local Notifications.  Please read the Android Docs to understand the limitations and differences between these to very different approaches. Android docs are available [here](http://developer.android.com/reference/android/app/AlarmManager.html).
 
  ## ABOUT ALARMS
-Here you will find two ways to create alarms: *addAlarmNotification* and *addAlarmService*. The first will create a notification to be triggered at certain date/time *but* if the device is restarted those notifications will be lost. If you need those notifications, use the service method (maybe you could need the [bootReceiver](https://github.com/benbahrenburg/benCoding.Android.Tools/blob/master/documentation/bootreceiver.md) tool). 
+Here you will find two ways to create alarms: *addAlarmNotification* and *addAlarmService*. The first will create a notification to be triggered at certain date/time *but* if the device is restarted those notifications will be lost. If you need those notifications, use the service method (maybe you could need the [bootReceiver](https://github.com/benbahrenburg/benCoding.Android.Tools/blob/master/documentation/bootreceiver.md) tool).
 
 ## SUPPORT
 No project, "how do I", or "can it" support is provided for this module. The code is available for your reference and usage. If you find an issue and want to contribute Pull Requests are appreciated.  If you are interested in being a contributor and helping with community support please contact me via Twitter.
@@ -25,7 +25,7 @@ If you are building from source you will need to do the following:
 
 ## Setup
 * Compile the module
-* Install the bencoding.alarmmanager module. If you need help here is a "How To" [guide](http://docs.appcelerator.com/platform/latest/#!/guide/Using_a_Module). 
+* Install the bencoding.alarmmanager module. If you need help here is a "How To" [guide](http://docs.appcelerator.com/platform/latest/#!/guide/Using_a_Module).
 * You can now use the module via the commonJS require method, example shown below.
 * You will also need to add the receivers into your tiapp.xml file.
 
@@ -53,6 +53,9 @@ Now we have the module installed and avoid in our project we can start to use th
 * BADGE_ICON\_SMALL
 
 
+## Properties
+* <b>canScheduleExactAlarms</b> - (bool)
+
 ## Methods
 
 ### addAlarmNotification
@@ -61,8 +64,8 @@ The addAlarmNotification allows you to schedule an Alarm that will then create a
 You can create an AlarmNotification using the below properties:
 
 * <b>requestCode</b> (Required) (int) ID for the specific alarm being created. If the requestCode, it will update the saved alarm
-* <b>second</b> - (Required) (int) The second of the start time. 
-* <b>minute</b> - (Required) (int) The minute of the start time. 
+* <b>second</b> - (Required) (int) The second of the start time.
+* <b>minute</b> - (Required) (int) The minute of the start time.
 * <b>hour</b> - (Optional) (int) The hour you want to start the alarm
 * <b>day</b> - (Optional) (int) The day you want to start the alarm
 * <b>month</b> - (Optional) (int) The month you want to start the alarm
@@ -80,23 +83,23 @@ You can create an AlarmNotification using the below properties:
 * <b>priority</b> - (Optional) (const) see above
 * <b>visibility</b> - (Optional) (const) see above
 * <b>importance</b> - (Optional) (const) see above
-* <b>badge</b> - (Optional) (boolean) Sets whether notifications posted to this channel can appear as application icon badges in a Launcher. 
-* <b>badegeIconType</b> - (Optional) (const) Sets which icon to display as a badge for this notification. 
+* <b>badge</b> - (Optional) (boolean) Sets whether notifications posted to this channel can appear as application icon badges in a Launcher.
+* <b>badegeIconType</b> - (Optional) (const) Sets which icon to display as a badge for this notification.
 * <b>when</b> - (Optional) (long) Difference to now in sec. Default is 0
 * <b>ongoing</b> - (Optional) (boolean) false: user cannot swipe out
 * <b>group</b> - (OPtional) (String) diffent for every notification if you want an extra strip.
 * <b>showWhen</b>  - (Optional) (boolean)
-* <b>autocancel</b> - (Optional) (boolean) Make this notification automatically dismissed when the user touches it. 
-* <b>onlyAlertOnce</b> - (Optional) (boolean) 
+* <b>autocancel</b> - (Optional) (boolean) Make this notification automatically dismissed when the user touches it.
+* <b>onlyAlertOnce</b> - (Optional) (boolean)
 * <b>timeoutAfter</b> - (Optional) (long) Specifies a duration in seconds after which this notification should be canceled, if it is not already canceled.
 * <b>actions</b> - (Optional) (array of objects)
 
 ### Parameter action	 
 
-* <b>icon</b> - (Optional) 
-* <b>label</b> - (Optional) 
-* <b>actionname</b> - (Optional) 
-* <b>extradata</b> - (Optional) 
+* <b>icon</b> - (Optional)
+* <b>label</b> - (Optional)
+* <b>actionname</b> - (Optional)
+* <b>extradata</b> - (Optional)
 
 ```
 actions : [{
@@ -143,8 +146,8 @@ You can create an AlarmService using the below properties:
 
 * <b>service</b> - (Required) The full service name from your AndroidManifest.xml to be run.
 * <b>requestCode</b> (Optional) (int) ID for the specific alarm being created. If the requestCode, it will update the saved alarm
-* <b>second</b> - (Required) (int) The second of the start time. 
-* <b>minute</b> - (Required) (int) The minute of the start time. 
+* <b>second</b> - (Required) (int) The second of the start time.
+* <b>minute</b> - (Required) (int) The minute of the start time.
 * <b>hour</b> - (Optional) (int) The hour you want to start the alarm
 * <b>day</b> - (Optional) (int) The day you want to start the alarm
 * <b>month</b> - (Optional) (int) The month you want to start the alarm
@@ -154,7 +157,7 @@ You can create an AlarmService using the below properties:
 * <b>repeat</b> - (Optional) Used to schedule a repeating alarm. You can provide a millisecond value or use the words hourly, daily, monthly, yearly.
 * <b>customData</b> - (Optional) (string) Used to pass custom text data to the service ("[]" if empty)
 * <b>channelName</b> - (Optional) (string)
-* <b>timeStamp</b> - (Optional) (string) provided by the system but can be overriden 
+* <b>timeStamp</b> - (Optional) (string) provided by the system but can be overriden
 * <b>priority</b> - (Options) (int) PRIORITY_HIGH | PRIORITY_LOW
 * <b>largeIcon</b> (Optional) (string, file)
 
@@ -177,7 +180,7 @@ This method cancels the alarm linked to the requestCode provided when calling th
 <b>Sample:</b>
 <pre><code>
 //Sample
-alarmManager.cancelAlarmNotification(41);	
+alarmManager.cancelAlarmNotification(41);
 </code></pre>
 
 ### alarmIsActivated
@@ -201,7 +204,7 @@ This method cancels the alarm linked to the requestCode provided when calling th
 <b>Sample:</b>
 <pre><code>
 //Sample
-alarmManager.cancelAlarmService(41);	
+alarmManager.cancelAlarmService(41);
 </code></pre>
 
 ### Method Usage Example
@@ -213,7 +216,7 @@ var requestCode = 41;
 var alarmModule = require('bencoding.alarmmanager');
 var alarmManager = alarmModule.createAlarmManager();
 
-//Create a date variable to be used later 
+//Create a date variable to be used later
 var now = new Date();
 
 //Set an Alarm to publish a notification in about two minutes
@@ -222,7 +225,7 @@ alarmManager.addAlarmNotification({
 	minute:2, //Set the number of minutes until the alarm should go off
 	contentTitle:'Alarm #2', //Set the title of the Notification that will appear
 	contentText:'Alarm & Notify Basic Repeat' //Set the body of the notification that will apear
-});	
+});
 var ew1 = Ti.UI.createAlertDialog({
 	title:'Info', message:"You should see your alarm notification in about 2 minutes & repeat each minute",
 	buttonNames:[Ti.Android.currentActivity.getString(Ti.Android.R.string.ok)]
@@ -231,8 +234,8 @@ ew1.show();
 
 //Below is an example on how you can provide a full date to schedule your alarm
 //Set an Alarm to publish a notification in about two minutes and repeat each minute
-alarmManager.addAlarmNotification({	
-	requestCode:requestCode,	
+alarmManager.addAlarmNotification({
+	requestCode:requestCode,
 	year: now.getFullYear(),
 	month: now.getMonth(),
 	day: now.getDate(),
@@ -243,20 +246,20 @@ alarmManager.addAlarmNotification({
 	sound: Ti.Filesystem.getResRawDirectory() + 'alarm', //Set a custom sound to play, located at: platform/android/res/raw/alarm.mp3
 	repeat:60000 //You can use the words hourly,daily,weekly,monthly,yearly or you can provide milliseconds.
 	//Or as shown above you can provide the millesecond value 	
-});	
+});
 var ew2 = Ti.UI.createAlertDialog({
 	title:'Info', message:"You should see your alarm notification in about 2 minutes",
 	buttonNames:[Ti.Android.currentActivity.getString(Ti.Android.R.string.ok)]
 });
- ew2.show();	
-    
-//Cancel our Notification based Alarms 
-alarmManager.cancelAlarmNotification(requestCode);	
+ ew2.show();
+
+//Cancel our Notification based Alarms
+alarmManager.cancelAlarmNotification(requestCode);
 var ew9 = Ti.UI.createAlertDialog({
 	title:'Info', message:"Your alarm notification has been cancelled",
 	buttonNames:[Ti.Android.currentActivity.getString(Ti.Android.R.string.ok)]
 });
-ew9.show();	
+ew9.show();
 
 //Schedule a service to be run (once) in about two minutes    
 alarmManager.addAlarmService({
@@ -265,15 +268,15 @@ alarmManager.addAlarmService({
 	minute:2, //Set the number of minutes until the alarm should go off
 	customData: JSON.stringify(['item1','item2']) // pass JSON string to service
 	// use JSON.parse(Ti.Android.currentService.getIntent().getStringExtra('customData')) to get the JSON inside the service
-});	
+});
 var ew5 = Ti.UI.createAlertDialog({
 	title:'Info', message:"The Service provided will be started in about 2 minutes",
 	buttonNames:[Ti.Android.currentActivity.getString(Ti.Android.R.string.ok)]
 });
-ew5.show();	
+ew5.show();
 
 //Schedule a service to be run (once) in about two minutes, then to run at the same time each day
-alarmManager.addAlarmService({	
+alarmManager.addAlarmService({
 	//The full name for the service to be called. Find this in your AndroidManifest.xml Titanium creates
 	service:'com.appworkbench.alarmtest.TestserviceService', 			
 	year: now.getFullYear(),
@@ -282,20 +285,20 @@ alarmManager.addAlarmService({
 	hour: now.getHours(),
 	minute: now.getMinutes() + 2, //Set the number of minutes until the alarm should go off
 	repeat:'daily' //You can use the words hourly,daily,weekly,monthly,yearly or you can provide milliseconds.
-});	
+});
 var ew8 = Ti.UI.createAlertDialog({
 	title:'Info', message:"You should see your alarm notification in about 2 minutes & repeat each day",
 	buttonNames:[Ti.Android.currentActivity.getString(Ti.Android.R.string.ok)]
 });
-ew8.show();	
+ew8.show();
 
-alarmManager.cancelAlarmService();	
+alarmManager.cancelAlarmService();
 var ew10 = Ti.UI.createAlertDialog({
 	title:'Info', message:"Your alarm service has been cancelled",
 	buttonNames:[Ti.Android.currentActivity.getString(Ti.Android.R.string.ok)]
 });
-ew10.show();	
-            	
+ew10.show();
+
 </code></pre>
 
 ## FAQ
@@ -359,9 +362,9 @@ Developed by [Ben Bahrenburg](http://bahrenburgs.com) available on twitter [@ben
 
 ### Twitter
 
-Please consider following the [@benCoding Twitter](http://www.twitter.com/benCoding) for updates 
+Please consider following the [@benCoding Twitter](http://www.twitter.com/benCoding) for updates
 and more about Titanium.
 
 ### Blog
 
-For module updates, Titanium tutorials and more please check out my blog at [benCoding.Com](http://benCoding.com). 
+For module updates, Titanium tutorials and more please check out my blog at [benCoding.Com](http://benCoding.com).

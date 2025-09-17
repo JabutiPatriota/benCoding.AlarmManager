@@ -46,6 +46,7 @@ import android.net.Uri;
 
 import androidx.core.app.NotificationCompat;
 
+import android.os.Build;
 import android.util.Log;
 
 import bencoding.alarmmanager.AlarmmanagerModule;
@@ -153,7 +154,7 @@ public class AlarmManagerProxy extends KrollProxy {
         boolean doVibrate = optionIsEnabled(args, "vibrate");
         boolean showLights = optionIsEnabled(args, "showLights");
         boolean onlyalertonce = optionIsEnabled(args, "onlyAlertOnce");
-        boolean autocancel = optionIsEnabled(args, "autoCancel");
+        boolean autocancel = optionIsEnabled(args, "autocancel");
         if (args.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)
                 || args.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TEXT)) {
             if (args.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)) {
@@ -189,7 +190,9 @@ public class AlarmManagerProxy extends KrollProxy {
         Intent intent = new Intent(ctx, AlarmNotificationListener.class);
         // Add some extra information so when the alarm goes off we have enough to
         // create the notification
-        intent.putExtra("notification_largeIcon", readFilenameFromObject(args.get("largeIcon")));
+        if (args.containsKey("largeIcon")) {
+            intent.putExtra("notification_largeIcon", readFilenameFromObject(args.get("largeIcon")));
+        }
         intent.putExtra("notification_title", contentTitle);
         intent.putExtra("notification_group", group);
         intent.putExtra("notification_msg", contentText);
@@ -569,6 +572,17 @@ public class AlarmManagerProxy extends KrollProxy {
                 AlarmmanagerModule.rootActivityClassName = (String) className;
             }
         }
+    }
+
+
+    @Kroll.getProperty
+    public boolean canScheduleExactAlarms() {
+        //
+        AlarmManager am = (AlarmManager) ctx.getSystemService(TiApplication.ALARM_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return am.canScheduleExactAlarms();
+        }
+        return false;
     }
 
     private JSONArray getActions(Object _actions) throws JSONException {

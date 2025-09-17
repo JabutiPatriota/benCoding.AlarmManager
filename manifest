@@ -15,4 +15,4 @@ name: alarmmanager
 moduleid: bencoding.alarmmanager
 guid: 40b8ff43-40b3-4491-b718-968b88ee0fbb
 platform: android
-minsdk: 9.0.0
+minsdk: 12.6.0

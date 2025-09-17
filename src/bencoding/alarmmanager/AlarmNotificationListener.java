@@ -12,6 +12,7 @@ import java.util.GregorianCalendar;
 import java.io.File;
 import java.text.SimpleDateFormat;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 
 import org.appcelerator.kroll.KrollDict;
@@ -50,9 +51,9 @@ public class AlarmNotificationListener extends BroadcastReceiver {
         utils.debugLog(">>>>>>> In Alarm Notification Listener >>>>>>>>>>>");
         Bundle bundle = intent.getExtras();
         for (String key : bundle.keySet()) {
-            utils.infoLog(key + "=" + bundle.get(key));
+            utils.infoLog(key + "=" + bundle.getString(key));
         }
-        if (!bundle.containsKey("notification_requestcode") || bundle.get("notification_requestcode") == null) {
+        if (!bundle.containsKey("notification_requestcode") || bundle.getString("notification_requestcode") == null) {
             utils.infoLog("notification_request_code is null or undefined => assume cancelled");
             return;
         }
@@ -64,15 +65,21 @@ public class AlarmNotificationListener extends BroadcastReceiver {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Bitmap largeIcon = bundle.getParcelable("notification_largeIcon");
-        utils.infoLog("largeIcon=" + largeIcon);
+        Bitmap largeIcon = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            largeIcon = bundle.getParcelable("notification_largeIcon", Bitmap.class);
+            utils.infoLog("largeIcon=" + largeIcon);
+        } else {
+            largeIcon = bundle.getParcelable("notification_largeIcon");
+            utils.infoLog("largeIcon=" + largeIcon);
+        }
         int requestCode = bundle.getInt("notification_requestcode", AlarmmanagerModule.DEFAULT_REQUEST_CODE);
         boolean badge = bundle.getBoolean("notification_badge");
         int importance = bundle.getInt("notification_importance");
         int priority = bundle.getInt("notification_priority");
         boolean ongoing = bundle.getBoolean("notification_ongoing");
         boolean onlyalertonce = bundle.getBoolean("notification_ongoing");
-        boolean autocancel = bundle.getBoolean("notification_ongoing");
+        boolean autocancel = bundle.getBoolean("notification_autocancel");
         long when = bundle.getLong("notification_when");
         long timeoutAfter = bundle.getLong("notification_timeoutAfter");
         int visibility = bundle.getInt("notification_visibility");
@@ -95,11 +102,17 @@ public class AlarmNotificationListener extends BroadcastReceiver {
         boolean hasCustomSound = !utils.isEmptyString(soundPath);
         // Add default notification flags
         boolean playSound = bundle.getBoolean("notification_play_sound", false);
-        utils.debugLog("On notification play sound? " + new Boolean(playSound));
+        if (playSound) {
+            utils.debugLog("On notification play sound");
+        }
         boolean doVibrate = bundle.getBoolean("notification_vibrate", false);
-        utils.debugLog("On notification vibrate? " + new Boolean(doVibrate));
+        if (doVibrate) {
+            utils.debugLog("On notification vibrate");
+        }
         boolean showLights = bundle.getBoolean("notification_show_lights", false);
-        utils.debugLog("On notification show lights? " + new Boolean(showLights));
+        if (showLights) {
+            utils.debugLog("On notification show lights");
+        }
         String channelName = bundle.getString("notification_channel_name", "notification");
 
         notificationManager = (NotificationManager) TiApplication.getInstance()
@@ -191,6 +204,7 @@ public class AlarmNotificationListener extends BroadcastReceiver {
 
     }
 
+    @SuppressLint("MissingPermission")
     private void createRepeatNotification(Bundle bundle) {
         Intent intent = new Intent(ctx, AlarmNotificationListener.class);
         // Use the same extras as the original notification
